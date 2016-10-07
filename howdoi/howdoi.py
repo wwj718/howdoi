@@ -16,7 +16,7 @@ import re
 import requests
 import requests_cache
 import sys
-from . import __version__
+#from . import __version__
 
 from pygments import highlight
 from pygments.lexers import guess_lexer, get_lexer_by_name
@@ -51,7 +51,7 @@ else:
     SEARCH_URL = 'https://www.google.com/search?q=site:{0}%20{1}'
     VERIFY_SSL_CERTIFICATE = True
 
-URL = os.getenv('HOWDOI_URL') or 'stackoverflow.com'
+URL = os.getenv('HOWDOI_URL') or 'zhihu.com'
 
 USER_AGENTS = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:11.0) Gecko/20100101 Firefox/11.0',
                'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:22.0) Gecko/20100 101 Firefox/22.0',
@@ -93,7 +93,6 @@ def _get_result(url):
 
 def _get_links(query):
     result = _get_result(SEARCH_URL.format(URL, url_quote(query)))
-    html = pq(result)
     return [a.attrib['href'] for a in html('.l')] or \
         [a.attrib['href'] for a in html('.r')('a')]
 
@@ -142,7 +141,7 @@ def _is_question(link):
 def _get_questions(links):
     return [link for link in links if _is_question(link)]
 
-
+# !!!
 def _get_answer(args, links):
     links = _get_questions(links)
     link = get_link_at_pos(links, args['pos'])
@@ -150,6 +149,8 @@ def _get_answer(args, links):
         return False
     if args.get('link'):
         return link
+    # link to html
+    raise
     page = _get_result(link + '?answertab=votes')
     html = pq(page)
 
@@ -180,6 +181,8 @@ def _get_answer(args, links):
 
 def _get_instructions(args):
     links = _get_links(args['query'])
+    # from google
+    print(links)
 
     if not links:
         return False
@@ -190,6 +193,7 @@ def _get_instructions(args):
         current_position = answer_number + initial_position
         args['pos'] = current_position
         answer = _get_answer(args, links)
+        # _get_answer  key method!
         if not answer:
             continue
         if append_header:
@@ -242,7 +246,7 @@ def command_line_runner():
     args = vars(parser.parse_args())
 
     if args['version']:
-        print(__version__)
+        #print(__version__)
         return
 
     if args['clear_cache']:
